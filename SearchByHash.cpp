@@ -8,7 +8,7 @@ using namespace std;
 
 int main() {
   try {
-    StartSearch('F');
+    StartSearch('C');
   } catch (const exception& exc) {
     wcout << "Critical internal error occurred. Try restarting program with "
              "administrator rights\n";

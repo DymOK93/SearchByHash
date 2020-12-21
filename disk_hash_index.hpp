@@ -174,7 +174,7 @@ class NtfsHashIndex {
   static constexpr size_t USN_JOURNAL_MAX_SIZE{1024ull * 1024ull *
                                                64ull},          // 64mb
       USN_JOURNAL_ALLOCATION_DELTA{1024ull * 1024ull * 16ull},  // 16 mb
-      USN_JOURNAL_MIN_VERSION{0}, USN_JOURNAL_MAX_VERSION{4};  // For Windows 10
+      USN_JOURNAL_MIN_VERSION{0}, USN_JOURNAL_MAX_VERSION{2};  // V3+ uses 128-bit ID
 
   static constexpr winapi::dword_t USN_JOURNAL_MASK{
       USN_REASON_DATA_EXTEND | USN_REASON_DATA_OVERWRITE |
@@ -375,7 +375,7 @@ class NtfsHashIndex {
     auto raw_handle{CreateFileA(std::data(buffer), GENERIC_READ,
                                 FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                                 OPEN_EXISTING,
-                                0,  // No additional flags
+                                FILE_ATTRIBUTE_NORMAL,  // No additional flags
                                 nullptr)};
     if (raw_handle == INVALID_HANDLE_VALUE) {
       throw std::runtime_error("Volume is protected or unavaliable");
