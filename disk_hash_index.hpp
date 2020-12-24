@@ -218,10 +218,11 @@ class NtfsHashIndex {
     auto [first, last]{equal_range(target)};
 
     std::vector<std::wstring_view> path_list;
-    std::transform(first, last, std::back_inserter(path_list),
-                   [&path_list](const index_entry_t& index_entry) {
-                     return std::wstring_view(index_entry.native_path.c_str());
-                   });
+    std::transform(
+        first, last, std::back_inserter(path_list),
+        [&path_list](const index_entry_t& index_entry) -> std::wstring_view {
+          return index_entry.native_path.c_str();
+        });
 
     return path_list;
   }
