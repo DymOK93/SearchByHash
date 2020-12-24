@@ -13,9 +13,9 @@
 
 #include <winioctl.h> /* For FSCTL */
 #include <algorithm>
-#include <queue>
 #include <filesystem>
 #include <optional>
+#include <queue>
 #include <string_view>
 #include <thread>
 #include <type_traits>
@@ -174,7 +174,8 @@ class NtfsHashIndex {
   static constexpr size_t USN_JOURNAL_MAX_SIZE{1024ull * 1024ull *
                                                64ull},          // 64mb
       USN_JOURNAL_ALLOCATION_DELTA{1024ull * 1024ull * 16ull},  // 16 mb
-      USN_JOURNAL_MIN_VERSION{0}, USN_JOURNAL_MAX_VERSION{2};  // V3+ uses 128-bit ID
+      USN_JOURNAL_MIN_VERSION{0},
+      USN_JOURNAL_MAX_VERSION{2};  // V3+ uses 128-bit ID
 
   static constexpr winapi::dword_t USN_JOURNAL_MASK{
       USN_REASON_DATA_EXTEND | USN_REASON_DATA_OVERWRITE |
@@ -425,7 +426,7 @@ class NtfsHashIndex {
 
     auto handle_or_err{open_file_for_reading_by_id(volume, file_id)};
     if (is_error_log(handle_or_err)) {
-       push_error_log(err_log, std::move(get_error_log(handle_or_err)));
+      push_error_log(err_log, std::move(get_error_log(handle_or_err)));
     } else {
       auto raw_handle{
           get_value(handle_or_err)
@@ -548,9 +549,7 @@ class NtfsHashIndex {
       push_error_log(err_log, std::move(get_error_log(result)));
       return std::make_pair(usn_header_t{}, false);
     }
-    return std::make_pair(
-        std::move(get_value(result)),
-        true);  // No NRVO because get_value() returns l-value ref
+    return std::make_pair(get_value(result), true);
   }
 
   static error_or_value<usn_header_t> get_usn_journal_header(
@@ -559,16 +558,14 @@ class NtfsHashIndex {
             volume_handle)) {  // We nead to create journal if it exists
       return ErrorLogEntry(
           ErrorCategory::Critical,
-          make_system_error_message(
-              "Unable to create USN journal. System error code: "));
+          make_system_error_message("Unable to create USN journal"));
     }
     auto header_holder{query_existing_usn_header(volume_handle)};
 
     if (!header_holder) {
       return ErrorLogEntry(
           ErrorCategory::Critical,
-          make_system_error_message(
-              "Unable to query USN journal. System error code: "));
+          make_system_error_message("Unable to query USN journal"));
     }
     return *header_holder;
   }
@@ -773,8 +770,7 @@ class NtfsHashIndex {
       try {
         std::invoke(func, std::forward<decltype(args)>(args)...);
       } catch (const std::exception& exc) {
-        push_error_log(error_log, ErrorCategory::Critical,
-                                                        exc.what());
+        push_error_log(error_log, ErrorCategory::Critical, exc.what());
       } catch (...) {
         push_error_log(error_log, ErrorCategory::Critical, "Unknown exception");
       }
