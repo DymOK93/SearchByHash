@@ -211,7 +211,7 @@ class NtfsHashIndex {
   }
 
   NtfsHashIndex(const settings_t& settings)
-      : NtfsHashIndex(setting.drive_letter, settings.hash, settings.filter) {}
+      : NtfsHashIndex(settings.drive_letter, settings.hash, settings.filter) {}
 
   std::vector<std::wstring_view> GetPathList(
       const hash_result_t& target) const {

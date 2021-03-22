@@ -138,22 +138,23 @@ class PackagedTask : public DetachedTask<Function, ArgTuple> {
   result_t Process() noexcept override {
     try {
       if constexpr (std::is_same_v<ret_t, void>) {
-        MyBase::call_with_unpacked_args(m_func, m_args);
+        MyBase::call_with_unpacked_args(MyBase::m_func, MyBase::m_args);
       } else {
-        m_promise.set_value(MyBase::call_with_unpacked_args(m_func, m_args));
+        m_promise.set_value(
+            MyBase::call_with_unpacked_args(MyBase::m_func, MyBase::m_args));
       }
     } catch (const std::exception& exc) {
-      return exception_thrown(exc);
+      return MyBase::exception_thrown(exc);
     } catch (...) {
       try {
         m_promise.set_exception(
             std::current_exception());  //Может бросить std::future_error
       } catch (const std::future_error& exc) {
-        return exception_thrown(exc);
+        return MyBase::exception_thrown(exc);
       }
-      return unknown_exception_thrown();
+      return MyBase::unknown_exception_thrown();
     }
-    return operation_successful();
+    return MyBase::operation_successful();
   }
 
  protected:

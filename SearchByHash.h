@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <iostream>
 
-void StartSearch(char drive_letter);
+void StartSearch(char drive_letter, size_t max_file_size);
 
 template <class Stream, class PathList>
 Stream& PrintPathList(Stream& output, char drive_letter, const PathList& list) {

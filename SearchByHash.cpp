@@ -6,13 +6,17 @@
 #include <conio.h>
 using namespace std;
 
-int main() {
-  try {
-    StartSearch('C');
-  } catch (const exception& exc) {
-    wcout << "Critical internal error occurred. Try restarting program with "
-             "administrator rights\n";
-    wcout << "Message: " << exc.what() << '\n';
+int main(int argc, char* argv[]) {
+  if (argc != 3) {
+    wcout << "Usage: SearchByHash <volume> <max_size>\n";
+  } else {
+    try {
+      StartSearch(argv[1][0], stoll(argv[2]));
+    } catch (const exception& exc) {
+      wcout << "Critical internal error occurred. Check command line arguments "
+               "and try restarting program with administrator rights\n";
+      wcout << "Message: " << exc.what() << '\n';
+    }
   }
   return 0;
 }
@@ -23,8 +27,8 @@ auto MakeHasher() {
   };
 }
 
-auto MakeFilter() {
-  return [](winapi::handle_t handle) {
+auto MakeFilter(size_t max_file_size) {
+  return [max_file_size](winapi::handle_t handle) {
     FILE_ATTRIBUTE_TAG_INFO attrs{};
     GetFileInformationByHandleEx(handle, FileAttributeTagInfo, &attrs,
                                  sizeof(attrs));
@@ -33,7 +37,7 @@ auto MakeFilter() {
     }
     LARGE_INTEGER val;
     GetFileSizeEx(handle, &val);
-    return val.QuadPart <= 1024ull * 1024ull;  // 1mb
+    return static_cast<size_t>(val.QuadPart) <= max_file_size;
   };
 }
 
@@ -42,14 +46,14 @@ crypto::Sha256Result RequestUserHash() {
   return crypto::Sha256FromIstream(cin);
 }
 
-void StartSearch(char drive_letter) {
+void StartSearch(char drive_letter, size_t max_file_size) {
   wcout << "Starting search engine...\n";  // wcout supports char* strings
   wcout
       << "Search system is indexing drive " << drive_letter
       << ":\\ now. It depends on the number of files on the drive and can take "
          "a long time (up to half an hour). Please wait ...\n";
   auto search_engine{
-      MakeNtfsHashIndex(drive_letter, MakeHasher(), MakeFilter())};
+      MakeNtfsHashIndex(drive_letter, MakeHasher(), MakeFilter(max_file_size))};
   wcout << "Disk indexing successully finished!\n";
   for (;;) {
     wcout << "Enter 0 to exit or another number to continue search...\n";

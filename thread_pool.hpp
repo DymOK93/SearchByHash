@@ -60,7 +60,7 @@ class ThreadPoolBase {
         async::MakeTaskHolder<async::DetachedTask, Function, Types...>(
             std::forward<Function>(func), std::forward<Types>(args)...)};
     if (!m_tasks.push(task_guard.get())) {
-      throw runtime_error("Can't push task into queue");
+      throw std::runtime_error("Can't push task into queue");
     }
     m_controller.NotifyOne();
     task_guard.release();
